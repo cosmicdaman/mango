@@ -1,5 +1,6 @@
 # mango
 mango (or mangoOS) is a 64-bit kernel that uses Limine & the Limine Boot Protocol.
+![logo](https://raw.githubusercontent.com/cosmicdaman/mango/refs/heads/master/logo.webp)
 ## Planned Features
 - an EXT2 driver.
 - ELF loading. (probably UNIX)
