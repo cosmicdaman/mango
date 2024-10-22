@@ -1,50 +1,26 @@
 #include <sys/gdt.h>
 
-static GDT gdt;
+static GDT gdt = {
+    // gdt.segments[0] = null
+    // gdt.segments[1] = 16-bit code segment
+    // gdt.segments[2] = 16-bit data segment
+    // gdt.segments[3] = 32-bit code segment
+    // gdt.segments[4] = 32-bit data segment
+    // gdt.segments[5] = 64-bit code segment (CS = 0x28)
+    // gdt.segments[6] = 64-bit data segment (DS = 0x30, ES = 0x30, FS = 0x30, GS = 0x30, SS = 0x30)
+    // gdt.segments[7] = User Mode data segment
+    // gdt.segments[8] = User Mode code segment 
+    { 0x0000000000000000, 0x00009A000000FFFF, 0x000093000000FFFF, 
+      0x00CF9A000000FFFF, 0x00CF93000000FFFF, 0x00AF9B000000FFFF, 
+      0x00AF93000000FFFF, 0x00AFF3000000FFFF, 0x00AFFB000000FFFF },
 
-static void setupSegments() {
-    // offset = 0x00 : null segment
-    // it is already nulled / zeroed out.
+    // gdt.tssSeg = GDT segment for the Task State Segment. Value is set in initGDT()
+    {}
+};
 
-    // offset = 0x08 : kernel mode code segment
-    gdt.kCode.limit_0_15 = 0xFFFF;
-    gdt.kCode.limit_48_51 = 0xF;
-    gdt.kCode.base_16_31 = 0;
-    gdt.kCode.base_32_39 = 0;
-    gdt.kCode.base_56_63 = 0;
-    gdt.kCode.access_40_47 = 0x9A;
-    gdt.kCode.flags_52_55 = 0xA;
-
-    // offset = 0x10 : kernel mode data segment
-    gdt.kData.limit_0_15 = 0xFFFF;
-    gdt.kData.limit_48_51 = 0xF;
-    gdt.kData.base_16_31 = 0;
-    gdt.kData.base_32_39 = 0;
-    gdt.kData.base_56_63 = 0;
-    gdt.kData.access_40_47 = 0x92;
-    gdt.kData.flags_52_55 = 0xC;
-
-    // offset = 0x18 : user mode code segment
-    gdt.uCode.limit_0_15 = 0xFFFF;
-    gdt.uCode.limit_48_51 = 0xF;
-    gdt.uCode.base_16_31 = 0;
-    gdt.uCode.base_32_39 = 0;
-    gdt.uCode.base_56_63 = 0;
-    gdt.uCode.access_40_47 = 0xFA;
-    gdt.uCode.flags_52_55 = 0xA;
-
-    // offset = 0x20 : user mode data segment
-    gdt.uData.limit_0_15 = 0xFFFF;
-    gdt.uData.limit_48_51 = 0xF;
-    gdt.uData.base_16_31 = 0;
-    gdt.uData.base_32_39 = 0;
-    gdt.uData.base_56_63 = 0;
-    gdt.uData.access_40_47 = 0xF2;
-    gdt.uData.flags_52_55 = 0xC;
-
-    // offset = 0x28 : task state segment
-    // this is a bit different than the other segments, because it uses a system segment descriptor
-    // rather than a normal segment descriptor. we need to use this as the TSS has a 64-bit base.
+/// @brief Initialize the Global Descriptor Table.
+void initGDT() {
+    // create the TSS Segment in the GDT
     tss_t tss;
     uint64_t tssBase = (uint64_t)&tss;
     gdt.tssSeg.limit_0_15 = sizeof(tss);
@@ -55,19 +31,13 @@ static void setupSegments() {
     gdt.tssSeg.base_64_95 = tssBase >> 32;
     gdt.tssSeg.access_40_47 = 0x89;
     gdt.tssSeg.flags_52_55 = 0x0;
-}
-
-/// @brief Initialize the Global Descriptor Table.
-void initGDT() {
-    // setup the segments.
-    setupSegments();
 
     // make a GDT ptr
     gdtr_t gdtr;
-    gdtr.base = (uint64_t)&gdt;
-    gdtr.limit = sizeof(gdt) - 1;
+    gdtr.base_16_79 = (uint64_t)&gdt;
+    gdtr.limit_0_15 = sizeof(gdt) - 1;
 
     // load the GDT (and TSS)
     asm volatile("lgdt %0\n\t"::"m"(gdtr):"memory");
-    asm volatile("ltr %0\n\t"::"r"((uint16_t)0x28):"memory");
+    asm volatile("ltr %0"::"r"((uint16_t)0x48):"memory");
 }

@@ -3,19 +3,9 @@
 #include <stdint.h>
 
 typedef struct {
-    uint16_t limit;
-    uint64_t base;
-} __attribute__((packed)) gdtr_t;
-
-typedef struct {
     uint16_t limit_0_15;
-    uint16_t base_16_31;
-    uint8_t base_32_39;
-    uint8_t access_40_47;
-    uint8_t limit_48_51 : 4;
-    uint8_t flags_52_55 : 4;
-    uint8_t base_56_63;
-} __attribute__((packed)) segment_t;
+    uint64_t base_16_79;
+} __attribute__((packed)) gdtr_t;
 
 typedef struct {
     uint16_t limit_0_15;
@@ -30,11 +20,7 @@ typedef struct {
 } __attribute__((packed)) system_segment_t; // 64-bit system segment descriptor
 
 typedef struct {
-    segment_t null;
-    segment_t kCode;
-    segment_t kData;
-    segment_t uCode;
-    segment_t uData;
+    uint64_t segments[9];
     system_segment_t tssSeg;
 } __attribute__((packed)) GDT;
 
