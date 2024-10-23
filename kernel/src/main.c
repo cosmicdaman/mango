@@ -51,11 +51,11 @@ void kmain(void) {
         0, 0
     );
 
-    flanterm_write(ftctx, "Welcome to \x1b[0;33mMangoOS\x1b[0m!\n");
+    flanterm_write(ftctx, "Welcome to \e[0;33mMangoOS\e[0m!\n");
 
     // Initialize the Global Descriptor Table
     initGDT();
-    flanterm_write(ftctx, "[\x1b[1;32m OK \e[0m] Initialized GDT\n");
+    flanterm_write(ftctx, "[\e[1;32m OK \e[0m] Initialized GDT\n");
 
     // there is nothing left to do for now.
     flanterm_write(ftctx, "Hello, world!\n");
