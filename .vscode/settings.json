@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "gdt.h": "c",
-        "mem.h": "c",
-        "stdint.h": "c"
-    }
-}
