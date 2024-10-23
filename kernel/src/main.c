@@ -2,12 +2,13 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <limine.h>
-#include <mem.h>
-#include <sys/gdt.h>
-#include <ft/flanterm.h>
-#include <ft/backends/fb.h>
+
+#include <memop.h>
 #include <sys/gdt.h>
 #include <sys/port.h>
+
+#include <ft/flanterm.h>
+#include <ft/backends/fb.h>
 
 __attribute__((used, section(".requests")))
 static volatile LIMINE_BASE_REVISION(2);
@@ -54,9 +55,10 @@ void kmain(void) {
 
     // Initialize the Global Descriptor Table
     initGDT();
-    flanterm_write(ftctx, "[\x1b[1;32m OK \e[0m] Initialized GDT\n\n");
+    flanterm_write(ftctx, "[\x1b[1;32m OK \e[0m] Initialized GDT\n");
 
     // there is nothing left to do for now.
     flanterm_write(ftctx, "Hello, world!\n");
+
     hcf();
 }

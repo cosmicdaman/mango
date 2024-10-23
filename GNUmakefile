@@ -177,7 +177,7 @@ kernel: kernel-deps
 $(IMAGE_NAME).iso: limine/limine kernel
 	rm -rf iso_root
 	mkdir -p iso_root/boot
-	cp -v kernel/bin-$(KARCH)/mkrnl iso_root/boot/
+	cp -v kernel/bin-$(KARCH)/mkrnl .art/wall.bmp iso_root/boot/
 	mkdir -p iso_root/boot/limine
 	cp -v limine.conf iso_root/boot/limine/
 	mkdir -p iso_root/EFI/BOOT
