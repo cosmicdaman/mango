@@ -2,8 +2,8 @@
 #include <sys/port.h>
 
 void kprint(const char *);
+void kprintHex(uint8_t);
 void kprintHex64(uint64_t);
-void kprintHex16(uint16_t);
 void kclear();
 
 static void (*irq_handlers[MAX_IDT_GATES])(struct int_frame *);
@@ -60,7 +60,7 @@ void handleInterrupt(struct int_frame *frame) {
         kprint("\n\nRegisters:\n");
 
         kprint("RSP = 0x");
-        kprintHex16((uint16_t)frame->ss);
+        kprintHex((uint8_t)frame->ss);
         kprint(":");
         kprint("0x");
         kprintHex64(frame->rsp);
@@ -69,7 +69,7 @@ void handleInterrupt(struct int_frame *frame) {
         kprintHex64(frame->rflags);
 
         kprint(" RIP = 0x");
-        kprintHex16((uint16_t)frame->cs);
+        kprintHex((uint8_t)frame->cs);
         kprint(":");
         kprint("0x");
         kprintHex64(frame->rip);
@@ -109,8 +109,21 @@ void handleInterrupt(struct int_frame *frame) {
             asm("hlt");
         }
     } else {
-        if (irq_handlers[frame->vec] != 0) irq_handlers[frame->vec](frame); 
+        if (irq_handlers[frame->vec] != NULL) {
+            irq_handlers[frame->vec](frame);
+        } else {
+            kprint("[\e[1;33m WARN \e[0m] Unhandled Interrupt (vec=0x");
+            kprintHex((uint8_t)frame->vec);
+            kprint(")\n");
+        }
+
+        if (frame->vec >= 40) {
+            outb(0xa0, 0x20);
+        }
+        outb(0x20, 0x20);
+        outb(0x20, 0x20);
     }
+    asm("sti");
 }
 
 void setIDTGate(void (*handler)(), int gate, uint8_t type, uint8_t dpl) {
@@ -146,7 +159,7 @@ void initIDT() {
     // create an IDT ptr
     idtr_t idtr = {
         .base_16_79 = (uint64_t)&idt,
-        .limit_0_15 = sizeof(idt_gate_t) * MAX_IDT_GATES
+        .limit_0_15 = sizeof(idt_gate_t) * MAX_IDT_GATES - 1
     };
 
     // load the IDT

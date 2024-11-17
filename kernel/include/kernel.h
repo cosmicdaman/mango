@@ -15,7 +15,7 @@ void kprint(const char *str) {
 #define LOG_ERROR 2
 #define LOG_INFO 3
 
-void klog(int type, char *msg) {
+void klog(int type, const char *msg) {
     switch (type) {
         case LOG_OK:
             kprint("[\e[1;32m OK \e[0m] ");
