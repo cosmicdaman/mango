@@ -5,10 +5,10 @@
 
 #include <memop.h>
 #include <sys/gdt.h>
+#include <sys/idt.h>
 #include <sys/port.h>
 
-#include <ft/flanterm.h>
-#include <ft/backends/fb.h>
+#include <kernel.h>
 
 __attribute__((used, section(".requests")))
 static volatile LIMINE_BASE_REVISION(2);
@@ -34,8 +34,8 @@ static void hcf(void) {
 
 void kmain(void) {
     if (!LIMINE_BASE_REVISION_SUPPORTED || !framebuffer_request.response || framebuffer_request.response->framebuffer_count < 1) hcf();
-    struct limine_framebuffer *fb = framebuffer_request.response->framebuffers[0];
-    struct flanterm_context *ftctx = flanterm_fb_init(
+    fb = framebuffer_request.response->framebuffers[0];
+    ftctx = flanterm_fb_init (
         NULL, NULL, 
         fb->address, fb->width, fb->height, fb->pitch, 
         fb->red_mask_size, fb->red_mask_shift, 
@@ -51,14 +51,18 @@ void kmain(void) {
         0, 0
     );
 
-    flanterm_write(ftctx, "Welcome to \e[0;33mMangoOS\e[0m!\n");
+    kprint("Welcome to \e[0;33mMangoOS\e[0m!\n");
 
     // Initialize the Global Descriptor Table
     initGDT();
-    flanterm_write(ftctx, "[\e[1;32m OK \e[0m] Initialized GDT\n");
+    klog(LOG_OK, "Initialized GDT");
+
+    // Initialize the Interrupt Descriptor Table
+    initIDT();
+    klog(LOG_OK, "Initialized IDT");
 
     // there is nothing left to do for now.
-    flanterm_write(ftctx, "Hello, world!\n");
+    kprint("Hello, world!\n");
 
     hcf();
 }

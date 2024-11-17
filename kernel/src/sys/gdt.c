@@ -10,9 +10,9 @@ static GDT gdt = {
     // gdt.segments[6] = 64-bit data segment (DS = 0x30, ES = 0x30, FS = 0x30, GS = 0x30, SS = 0x30)
     // gdt.segments[7] = User Mode data segment
     // gdt.segments[8] = User Mode code segment 
-    { 0x0000000000000000, 0x00009A000000FFFF, 0x000093000000FFFF, 
-      0x00CF9A000000FFFF, 0x00CF93000000FFFF, 0x00AF9B000000FFFF, 
-      0x00AF93000000FFFF, 0x00AFF3000000FFFF, 0x00AFFB000000FFFF },
+    { 0x0000000000000000, 0x00009a000000ffff, 0x000093000000ffff, 
+      0x00cf9a000000ffff, 0x00cf93000000ffff, 0x00af9b000000ffff, 
+      0x00af93000000ffff, 0x00aff3000000ffff, 0x00affb000000ffff },
 
     // gdt.tssSeg = GDT segment for the Task State Segment. Value is set in initGDT()
     {}
@@ -25,9 +25,9 @@ void initGDT() {
     uint64_t tssBase = (uint64_t)&tss;
     gdt.tssSeg.limit_0_15 = sizeof(tss);
     gdt.tssSeg.limit_48_51 = 0;
-    gdt.tssSeg.base_16_31 = tssBase & 0xFFFF;
-    gdt.tssSeg.base_32_39 = (tssBase >> 16) & 0xFF;
-    gdt.tssSeg.base_56_63 = (tssBase >> 24) & 0xFF;
+    gdt.tssSeg.base_16_31 = tssBase & 0xffff;
+    gdt.tssSeg.base_32_39 = (tssBase >> 16) & 0xff;
+    gdt.tssSeg.base_56_63 = (tssBase >> 24) & 0xff;
     gdt.tssSeg.base_64_95 = tssBase >> 32;
     gdt.tssSeg.access_40_47 = 0x89;
     gdt.tssSeg.flags_52_55 = 0x0;
@@ -38,6 +38,6 @@ void initGDT() {
     gdtr.limit_0_15 = sizeof(gdt) - 1;
 
     // load the GDT (and TSS)
-    asm volatile("lgdt %0\n\t"::"m"(gdtr):"memory");
+    asm volatile("lgdt %0"::"m"(gdtr):"memory");
     asm volatile("ltr %0"::"r"((uint16_t)0x48):"memory");
 }

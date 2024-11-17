@@ -11,7 +11,7 @@ mango (or mangoOS) is a 64-bit kernel that uses Limine & the Limine Boot Protoco
 ## Roadmap
 - [X] Global Descriptor Table
 - [ ] Memory Management
-- [ ] Interrupts
+- [X] Interrupts
 - [ ] Multithreading
 - [ ] PS/2 Keyboard 
 - [ ] Filesystem (EXT2, initrd)
