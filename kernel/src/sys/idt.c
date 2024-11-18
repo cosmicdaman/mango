@@ -117,7 +117,7 @@ void handleInterrupt(struct int_frame *frame) {
             kprint(")\n");
         }
 
-        if (frame->vec >= 40) {
+        if (frame->vec <= 40) {
             outb(0xa0, 0x20);
         }
         outb(0x20, 0x20);
@@ -141,8 +141,6 @@ void initIDT() {
     for (int i = 0; i < MAX_IDT_GATES; i++) {
         setIDTGate(int_handlers[i], i, 0xe, 0);
     }
-
-    uint8_t mask_mPIC = inb(0x21), mask_sPIC = inb(0xA1);
     
     outb(0x20, 0x11);
     outb(0xA0, 0x11);
@@ -153,8 +151,8 @@ void initIDT() {
     outb(0xA1, 0x02);
     outb(0x21, 0x01);
     outb(0xA1, 0x01);
-    outb(0x21, mask_mPIC);
-    outb(0xA1, mask_sPIC);
+    outb(0x21, 0x00); 
+    outb(0xA1, 0x00);
 
     // create an IDT ptr
     idtr_t idtr = {
