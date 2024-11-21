@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <limine.h>
 
-#include <memop.h>
+#include <mem.h>
 #include <sys/gdt.h>
 #include <sys/idt.h>
 #include <sys/port.h>
