@@ -9,9 +9,22 @@ mango (or mangoOS) is a 64-bit kernel that uses Limine & the Limine Boot Protoco
 - PS/2 keyboard and mouse drivers.
 - small GUI
 ## Roadmap
+
+### Base System
 - [X] Global Descriptor Table
-- [ ] Memory Management
 - [X] Interrupts
-- [ ] Multithreading
-- [ ] PS/2 Keyboard 
-- [ ] Filesystem (EXT2, initrd)
+- [ ] Memory Management (Free lists)
+- [ ] ACPI
+- [ ] Multicore
+- [ ] Switch to APIC
+- [ ] Timer
+- [ ] Thread Scheduler
+- [ ] Virtual Filesystem 
+- [ ] Ring 3, ELF loading and Syscalls
+- [ ] PCI Driver
+- [ ] NVMe Driver
+
+### Userland
+- [ ] PS/2 Driver
+- [ ] msh (the mangoOS shell)
+- [ ] 
