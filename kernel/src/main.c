@@ -32,9 +32,17 @@ static void hcf(void) {
     }
 }
 
+extern uint8_t _binary_VGA_F16_start;
 void kmain(void) {
     if (!LIMINE_BASE_REVISION_SUPPORTED || !framebuffer_request.response || framebuffer_request.response->framebuffer_count < 1) hcf();
     fb = framebuffer_request.response->framebuffers[0];
+
+    // memcpy the 'ttyfont' binary to a uint8_t buffer 
+    // so we can use it with flanterm
+
+    uint8_t font_data[0x14bc]; // ~5.18 KiB
+    memcpy(&font_data, &_binary_VGA_F16_start, 0x14bc);
+
     ftctx = flanterm_fb_init (
         NULL, NULL, 
         fb->address, fb->width, fb->height, fb->pitch, 
@@ -45,9 +53,9 @@ void kmain(void) {
         NULL, NULL, 
         NULL, NULL, 
         NULL, NULL, 
-        NULL, 
+        &font_data, 
+        8, 16, 
         0, 0, 
-        1, 0, 
         0, 0
     );
 

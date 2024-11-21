@@ -167,7 +167,7 @@ all: bin-$(KARCH)/$(OUTPUT)
 # Link rules for the final executable.
 bin-$(KARCH)/$(OUTPUT): GNUmakefile linker-$(KARCH).ld $(OBJ)
 	mkdir -p "$$(dirname $@)"
-	$(KLD) $(OBJ) $(KLDFLAGS) -o $@
+	$(KLD) res/ttyfont $(OBJ) $(KLDFLAGS) -o $@
 
 # Include header dependencies.
 -include $(HEADER_DEPS)
