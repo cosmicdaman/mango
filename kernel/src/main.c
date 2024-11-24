@@ -32,16 +32,10 @@ static void hcf(void) {
     }
 }
 
-extern uint8_t _binary_VGA_F16_start;
+extern uint8_t _binary_VGA_F16_start; // ttyfont
 void kmain(void) {
     if (!LIMINE_BASE_REVISION_SUPPORTED || !framebuffer_request.response || framebuffer_request.response->framebuffer_count < 1) hcf();
     fb = framebuffer_request.response->framebuffers[0];
-
-    // memcpy the 'ttyfont' binary to a uint8_t buffer 
-    // so we can use it with flanterm
-
-    uint8_t font_data[0x14bc]; // ~5.18 KiB
-    memcpy(&font_data, &_binary_VGA_F16_start, 0x14bc);
 
     ftctx = flanterm_fb_init (
         NULL, NULL, 
@@ -53,7 +47,7 @@ void kmain(void) {
         NULL, NULL, 
         NULL, NULL, 
         NULL, NULL, 
-        &font_data, 
+        &_binary_VGA_F16_start, 
         8, 16, 
         0, 0, 
         0, 0
@@ -68,6 +62,9 @@ void kmain(void) {
     // Initialize the Interrupt Descriptor Table
     initIDT();
     klog(LOG_OK, "Initialized IDT");
+    
+    // mask IRQ0 and IRQ1 so we dont get a bunch of Unhandled Interrupt logs
+    outb(0x21, 0b00000011); 
 
     // there is nothing left to do for now.
     kprint("Hello, world!\n");
