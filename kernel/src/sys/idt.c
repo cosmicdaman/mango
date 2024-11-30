@@ -1,11 +1,6 @@
 #include <sys/idt.h>
 #include <sys/port.h>
 
-void kprint(const char *);
-void kprintHex(uint8_t);
-void kprintHex64(uint64_t);
-void kclear();
-
 static void (*irq_handlers[MAX_IDT_GATES])(struct int_frame *);
 
 static const char *exceptions[31] = {
@@ -44,84 +39,100 @@ static const char *exceptions[31] = {
 
 __attribute__((aligned(0x10))) static idt_gate_t idt[MAX_IDT_GATES];
 
+static void EOI(uint64_t vec) {
+    if (vec <= 40) {
+        outb(0xa0, 0x20);
+    }
+    outb(0x20, 0x20);
+}
+
+void kprint(const char *);
+void kprintHex(uint8_t);
+void kprintHex16(uint16_t);
+void kprintHex64(uint64_t);
+
 void handleInterrupt(struct int_frame *frame) {
     asm("cli");
     if (frame->vec <= 31) {
-        kprint("\e[38;2;255;255;255m\e[48;2;255;0;0m");
-        kclear();
-        kprint("An exception has occured, and MangoOS cannot continue.\n\n");
-
+        kprint("\e[1;31mpanic\e[0m: ");
         kprint(exceptions[frame->vec]);
-        if (frame->errcode) {
-            kprint("\nError Code: 0x");
-            kprintHex64(frame->errcode);
-        }
+        kprint(", v=");
+        kprintHex(frame->vec);
+        kprint(", e=");
+        kprintHex(frame->errcode);
 
-        kprint("\n\nRegisters:\n");
-
-        kprint("RSP = 0x");
-        kprintHex((uint8_t)frame->ss);
+        kprint("\n\trsp=");
+        kprintHex16(frame->ss);
         kprint(":");
-        kprint("0x");
         kprintHex64(frame->rsp);
 
-        kprint(" RFLAGS = 0x");
-        kprintHex64(frame->rflags);
-
-        kprint(" RIP = 0x");
-        kprintHex((uint8_t)frame->cs);
+        kprint(", rip=");
+        kprintHex16(frame->cs);
         kprint(":");
-        kprint("0x");
         kprintHex64(frame->rip);
 
-        kprint("\nRAX = 0x");
+        kprint(", rflags=");
+        kprintHex64(frame->rflags);
+
+        kprint("\n\trax=");
         kprintHex64(frame->rax);
-        kprint(" RCX = 0x");
+        
+        kprint(", rcx=");
         kprintHex64(frame->rcx);
-        kprint(" RDX = 0x");
+
+        kprint(", rdx=");
         kprintHex64(frame->rdx);
-        kprint(" RBX = 0x");
+
+        kprint("\n\trbx=");
         kprintHex64(frame->rbx);
-        kprint("\nRSI = 0x");
+
+        kprint(", rsi=");
         kprintHex64(frame->rsi);
-        kprint(" RDI = 0x");
+
+        kprint(", rdi=");
         kprintHex64(frame->rdi);
-        kprint(" RBP = 0x");
+
+        kprint("\n\trbp=");
         kprintHex64(frame->rbp);
-        kprint(" R8 = 0x");
+
+        kprint(", r8 =");
         kprintHex64(frame->r8);
-        kprint("\nR9 = 0x");
+
+        kprint(", r9 =");
         kprintHex64(frame->r9);
-        kprint(" R10 = 0x");
+
+        kprint("\n\tr10=");
         kprintHex64(frame->r10);
-        kprint(" R11 = 0x");
+
+        kprint(", r11=");
         kprintHex64(frame->r11);
-        kprint(" R12 = 0x");
+
+        kprint(", r12=");
         kprintHex64(frame->r12);
-        kprint("\nR13 = 0x");
+        
+        kprint("\n\tr13=");
         kprintHex64(frame->r13);
-        kprint(" R14 = 0x");
+
+        kprint(", r14=");
         kprintHex64(frame->r14);
-        kprint(" R15 = 0x");
+
+        kprint(", r15=");
         kprintHex64(frame->r15);
-        kprint("\n\nSystem halted.");
+
+        kprint("\nSystem halted.");
+
         for (;;) {
             asm("hlt");
         }
     } else {
-        if (irq_handlers[frame->vec] != NULL) {
+        if (irq_handlers[frame->vec]) {
             irq_handlers[frame->vec](frame);
         } else {
             kprint("[\e[1;33m WARN \e[0m] Unhandled Interrupt (vec=0x");
             kprintHex((uint8_t)frame->vec);
             kprint(")\n");
         }
-
-        if (frame->vec <= 40) {
-            outb(0xa0, 0x20);
-        }
-        outb(0x20, 0x20);
-        outb(0x20, 0x20);
+        EOI(frame->vec);
     }
     asm("sti");
 }

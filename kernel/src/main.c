@@ -61,10 +61,8 @@ void kmain(void) {
 
     // Initialize the Interrupt Descriptor Table
     initIDT();
+    outb(0x21, 0b00000011); // mask IRQ0 and IRQ1 so we dont get a bunch of Unhandled Interrupt logs
     klog(LOG_OK, "Initialized IDT");
-    
-    // mask IRQ0 and IRQ1 so we dont get a bunch of Unhandled Interrupt logs
-    outb(0x21, 0b00000011); 
 
     // there is nothing left to do for now.
     kprint("Hello, world!\n");

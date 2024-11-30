@@ -51,10 +51,6 @@ void kprintHex(uint8_t i) {
     kprint(&buf);
 }
 
-void kclear() {
-    ftctx->clear(ftctx, true);
-}
-
 void kprintHex16(uint16_t i) {
     kprintHex((i >> 8) & 0xff);
     kprintHex(i & 0xff);
