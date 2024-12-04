@@ -34,7 +34,11 @@ static void hcf(void) {
 
 extern uint8_t _binary_VGA_F16_start; // ttyfont
 void kmain(void) {
-    if (!LIMINE_BASE_REVISION_SUPPORTED || !framebuffer_request.response || framebuffer_request.response->framebuffer_count < 1) hcf();
+    if (!LIMINE_BASE_REVISION_SUPPORTED 
+    || !framebuffer_request.response 
+    || !framebuffer_request.response->framebuffer_count) {
+        hcf();
+    } 
     fb = framebuffer_request.response->framebuffers[0];
 
     ftctx = flanterm_fb_init (
@@ -58,6 +62,10 @@ void kmain(void) {
     // Initialize the Global Descriptor Table
     initGDT();
     klog(LOG_OK, "Initialized GDT");
+
+    // Initialize the Dynamic Memory (management)
+    initDMM();
+    klog(LOG_OK, "Initialized Dynamic Memory Management");
 
     // Initialize the Interrupt Descriptor Table
     initIDT();

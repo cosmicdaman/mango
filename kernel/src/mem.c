@@ -50,3 +50,72 @@ int memcmp(const void *s1, const void *s2, size_t n) {
 
     return 0;
 }
+
+static uint8_t dmem_area[10*1024*1024]; // 10 MiB
+static mem_chunk_t *start;
+
+/// @brief Initializes the Dynamic Memory Management
+void initDMM() {
+    start = (mem_chunk_t *)&dmem_area;
+    start->alloc = false;
+    start->last = NULL;
+    start->next = NULL;
+    start->size = ((10*1024*1024) - sizeof(mem_chunk_t));
+}
+
+/// @brief Allocate a specific number of bytes from dynamic memory.
+/// @param size The number of bytes to allocate.
+/// @return The ptr of the new array, otherwise NULL.
+void *malloc(size_t size) {
+    mem_chunk_t *ptr = NULL;
+    for (mem_chunk_t *chnk = start; chnk && !ptr; chnk = chnk->next) {
+        if (chnk->size > size && !chnk->alloc) {
+            ptr = chnk;
+        }
+    }
+
+    if (!ptr) {
+        return NULL;
+    }
+
+    if (ptr->size >= size + sizeof(mem_chunk_t) + 1) {
+        mem_chunk_t *tmp = (mem_chunk_t *)((size_t)ptr + sizeof(mem_chunk_t) + size);
+        tmp->alloc = false;
+        tmp->size = ptr->size - size - sizeof(mem_chunk_t);
+        tmp->last = ptr;
+        tmp->next = ptr->next;
+        if (tmp->next) {
+            tmp->next->last = tmp;
+        }
+
+        ptr->size = size;
+        ptr->next = tmp;
+    }
+
+    ptr->alloc = true;
+    return (void *)(((size_t)ptr) + sizeof(mem_chunk_t));
+}
+
+/// @brief Frees an allocated array of bytes from dynamic memory.
+/// @param ptr The pointer to the allocated array.
+void free(void *ptr) {
+    mem_chunk_t *chnk = (mem_chunk_t *)((size_t)ptr - sizeof(mem_chunk_t));
+    chnk->alloc = false;
+
+    if (chnk->last && !chnk->last->alloc) {
+        chnk->last->next = chnk->next;
+        chnk->last->size += chnk->size + sizeof(mem_chunk_t);
+        if (chnk->next) {
+            chnk->next->last = chnk->last;
+        }
+        chnk = chnk->last;
+    }
+
+    if (chnk->next && chnk->next->alloc) {
+        chnk->size += chnk->next->size + sizeof(mem_chunk_t);
+        chnk->next = chnk->next->next;
+        if (chnk->next) {
+            chnk->next->last = chnk;
+        }
+    }
+}
