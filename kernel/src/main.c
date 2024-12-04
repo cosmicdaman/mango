@@ -65,7 +65,7 @@ void kmain(void) {
 
     // Initialize the Dynamic Memory (management)
     initDMM();
-    klog(LOG_OK, "Initialized Dynamic Memory Management");
+    klog(LOG_OK, "Initialized Dynamic Memory");
 
     // Initialize the Interrupt Descriptor Table
     initIDT();
