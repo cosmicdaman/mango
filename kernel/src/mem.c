@@ -65,7 +65,7 @@ void initDMM() {
 
 /// @brief Allocate a specific number of bytes from dynamic memory.
 /// @param size The number of bytes to allocate.
-/// @return The ptr of the new array, otherwise NULL.
+/// @return The pointer to the new array, otherwise NULL.
 void *malloc(size_t size) {
     mem_chunk_t *ptr = NULL;
     for (mem_chunk_t *chnk = start; chnk && !ptr; chnk = chnk->next) {
@@ -118,4 +118,18 @@ void free(void *ptr) {
             chnk->next->last = chnk;
         }
     }
+}
+
+/// @brief Allocates an array with a total size of n*size, and initializes the elements to 0
+/// @param n The number of elements
+/// @param size The size of the elements
+/// @return The pointer to the array. Otherwise, NULL
+void *calloc(size_t n, size_t size) {
+    size_t total = n * size;
+    void *ptr = malloc(total);
+    if (!ptr) {
+        return NULL;
+    }
+    memset(ptr, 0, total);
+    return ptr;
 }
