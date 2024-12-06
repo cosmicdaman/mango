@@ -13,7 +13,7 @@ mango (or mangoOS) is a 64-bit kernel that uses Limine & the Limine Boot Protoco
 ### Base System
 - [X] Global Descriptor Table
 - [X] Interrupts
-- [X] Dynamic Memory Management / Heap
+- [ ] Physical / Virtual Memory Management
 - [ ] ACPI
 - [ ] Multicore
 - [ ] Switch to APIC
