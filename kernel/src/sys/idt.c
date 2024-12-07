@@ -165,6 +165,8 @@ void initIDT() {
     outb(0x21, 0x00); 
     outb(0xA1, 0x00);
 
+    setIRQMask(0b00000011, MASTER_PIC); // mask IRQ0 and IRQ1 to prevent the timer or keyboard from sending logs
+
     // create an IDT ptr
     idtr_t idtr = {
         .base_16_79 = (uint64_t)&idt,
@@ -176,8 +178,20 @@ void initIDT() {
     asm volatile("sti");
 }
 
-void setIRQHandler(void (*handler)(struct int_frame *), int irq, int remove) {
+void setIRQHandler(void (*handler)(struct int_frame *), int irq) {
     if (irq > MAX_IDT_GATES) return;
-    if (!remove) irq_handlers[irq] = handler;
-    else irq_handlers[irq] = 0;
+    irq_handlers[irq] = handler;
+}
+
+void setIRQMask(uint8_t mask, uint16_t pic) {
+    switch (pic) {
+        case MASTER_PIC:
+            outb(MASTER_PIC_DATA, mask);
+            break;
+        case SLAVE_PIC:
+            outb(SLAVE_PIC_DATA, mask);
+            break;
+        default:
+            break;
+    }
 }

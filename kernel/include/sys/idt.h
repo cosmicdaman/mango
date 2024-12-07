@@ -4,6 +4,11 @@
 
 #define MAX_IDT_GATES 256
 
+#define MASTER_PIC 0x20
+#define MASTER_PIC_DATA MASTER_PIC + 1
+#define SLAVE_PIC 0xa0
+#define SLAVE_PIC_DATA SLAVE_PIC + 1
+
 extern void *int_handlers[];
 
 struct int_frame {
@@ -55,4 +60,5 @@ void handleInterrupt(struct int_frame *frame);
 void setIDTGate(void (*handler)(), int gate, uint8_t type, uint8_t dpl);
 void initIDT();
 
-void setIRQHandler(void (*handler)(struct int_frame *), int irq, int remove);
+void setIRQHandler(void (*handler)(struct int_frame *), int irq);
+void setIRQMask(uint8_t mask, uint16_t pic);
