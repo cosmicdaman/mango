@@ -7,6 +7,7 @@
 #include <sys/gdt.h>
 #include <sys/idt.h>
 #include <sys/port.h>
+#include <sys/acpi/xsdt.h>
 
 #include <kernel.h>
 
@@ -16,6 +17,12 @@ static volatile LIMINE_BASE_REVISION(2);
 __attribute__((used, section(".requests")))
 static volatile struct limine_framebuffer_request framebuffer_request = {
     .id = LIMINE_FRAMEBUFFER_REQUEST,
+    .revision = 0
+};
+
+__attribute__((used, section(".requests")))
+static volatile struct limine_rsdp_request rsdp_request = {
+    .id = LIMINE_RSDP_REQUEST,
     .revision = 0
 };
 
@@ -71,6 +78,27 @@ void kmain(void) {
     initIDT();
     klog(LOG_OK, "Initialized IDT");
 
+    // Start up ACPI
+    xsdp_t *xsdp = (xsdp_t *)rsdp_request.response->address;
+    kprint("acpi: XSDP OEMID = ");
+    char *oemid = (char *)calloc(7, sizeof(char));
+    memcpy(oemid, &xsdp->OEMID, 6);
+    kprint(oemid);
+    kprint("(possibly ");
+    switch (oemid[0]) {
+        case 'P':
+            kprint("VMware)\n");
+            break;
+        case 'V':
+            kprint("VirtualBox)\n");
+            break;
+        case 'B':
+            kprint("KVM/QEMU or BOCHS)\n");
+            break;
+        default:
+            kprint("unknown VM / Real Hardware)\n");
+            break;
+    }
     // there is nothing left to do for now.
     kprint("Hello, world!\n");
 
