@@ -18,7 +18,7 @@ void kprint(const char *str) {
 void klog(int type, const char *msg) {
     switch (type) {
         case LOG_OK:
-            kprint("[\e[1;32m OK \e[0m] ");
+            kprint("[\e[1;32m  OK  \e[0m] ");
             kprint(msg);
             kprint("\n");
             break;
@@ -28,7 +28,7 @@ void klog(int type, const char *msg) {
             kprint("\n");
             break;
         case LOG_ERROR:
-            kprint("[\e[1;31m ERROR \e[0m] ");
+            kprint("[\e[1;31m FAIL \e[0m] ");
             kprint(msg);
             kprint("\n");
             break;
