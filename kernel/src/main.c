@@ -63,20 +63,14 @@ void kmain(void) {
         0, 0
     );
 
+    initGDT(); // Initialize the Global Descriptor Table
+    initDMM(); // Initialize the Dynamic Memory (for dynamic memory management)
+    initIDT(); // Initialize the Interrupt Descriptor Table
+
+    kprint("Initialization successful.");
+
     kprint("Welcome to \e[0;33mMangoOS\e[0m!\n");
-
-    // Initialize the Global Descriptor Table
-    initGDT();
-    klog(LOG_OK, "Initialized GDT");
-
-    // Initialize the Dynamic Memory (management)
-    initDMM();
-    klog(LOG_OK, "Initialized Dynamic Memory");
-
-    // Initialize the Interrupt Descriptor Table
-    initIDT();
-    klog(LOG_OK, "Initialized IDT");
-
+    
     // there is nothing left to do for now.
     kprint("Hello, world!\n");
 
