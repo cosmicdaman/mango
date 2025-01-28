@@ -26,6 +26,6 @@ mango (or mangoOS) is a 64-bit kernel that uses Limine & the Limine Boot Protoco
 
 ### Userland
 - [ ] PS/2 Driver
-- [ ] libc
+- [ ] mini libc
 - [ ] msh (the mangoOS shell)
 - [ ] GUI
