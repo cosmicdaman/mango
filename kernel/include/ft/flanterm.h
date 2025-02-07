@@ -1,4 +1,4 @@
-/* Copyright (C) 2022-2024 mintsuki and contributors.
+/* Copyright (C) 2022-2025 mintsuki and contributors.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -128,7 +128,7 @@ struct flanterm_context {
 };
 
 void flanterm_context_reinit(struct flanterm_context *ctx);
-void flanterm_write(struct flanterm_context *ctx, const char *buf);
+void flanterm_write(struct flanterm_context *ctx, const char *buf, size_t count);
 
 #ifdef __cplusplus
 }

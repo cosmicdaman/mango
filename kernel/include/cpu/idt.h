@@ -12,6 +12,9 @@
 extern void *int_handlers[];
 
 struct int_frame {
+    uint64_t cr3;
+    uint64_t cr2;
+    uint64_t cr0;
     uint64_t r15;
     uint64_t r14;
     uint64_t r13;
@@ -55,10 +58,8 @@ typedef struct {
     uint32_t reserved_96_127;
 } __attribute__((packed)) idt_gate_t;
 
-void handleInterrupt(struct int_frame *frame);
+void set_idt_gate(void (*handler)(), int gate, uint8_t type, uint8_t dpl);
+void init_idt();
 
-void setIDTGate(void (*handler)(), int gate, uint8_t type, uint8_t dpl);
-void initIDT();
-
-void setIRQHandler(void (*handler)(struct int_frame *), int irq);
-void setIRQMask(uint8_t mask, uint16_t pic);
+void set_irq_handler(void (*handler)(struct int_frame *), int irq);
+void set_pic_irq_mask(uint8_t mask, uint16_t pic);

@@ -1,5 +1,5 @@
 section .text
-extern handleInterrupt
+extern handle_int
 
 %macro pushall 0
     push rax
@@ -17,9 +17,21 @@ extern handleInterrupt
     push r13
     push r14
     push r15
+    mov rax, cr0
+    push rax
+    mov rax, cr2
+    push rax
+    mov rax, cr3
+    push rax
 %endmacro
 
 %macro popall 0
+    pop rax
+    mov cr3, rax
+    pop rax
+    mov cr2, rax
+    pop rax
+    mov cr0, rax
     pop r15
     pop r14
     pop r13
@@ -45,10 +57,10 @@ extern handleInterrupt
         pushall
 
         mov rdi, rsp
-        call handleInterrupt
+        call handle_int
 
         popall
-        add rsp, 16
+        add rsp, 19
         iretq
 %endmacro
 
@@ -59,10 +71,10 @@ extern handleInterrupt
         pushall
 
         mov rdi, rsp
-        call handleInterrupt
+        call handle_int
 
         popall
-        add rsp, 16
+        add rsp, 19
         iretq
 %endmacro
 

@@ -1,5 +1,4 @@
 #pragma once
-#include "../mem.h"
 #include <stdint.h>
 
 typedef struct {
@@ -25,11 +24,11 @@ typedef struct {
 } __attribute__((packed)) GDT;
 
 typedef struct {
-    uint32_t reserved;
+    uint32_t resv;
     uint64_t rsp0;
     uint64_t rsp1;
     uint64_t rsp2;
-    uint64_t reserved2;
+    uint64_t resv1;
     uint64_t ist1;
     uint64_t ist2;
     uint64_t ist3;
@@ -37,9 +36,9 @@ typedef struct {
     uint64_t ist5;
     uint64_t ist6;
     uint64_t ist7;
-    uint64_t reserved3;
-    uint16_t reserved5;
+    uint64_t resv2;
+    uint16_t resv3;
     uint16_t iopb;
 } __attribute__((packed)) tss_t; // task state segment
 
-void initGDT();
+void init_gdt();

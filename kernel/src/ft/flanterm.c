@@ -1,4 +1,4 @@
-/* Copyright (C) 2022-2024 mintsuki and contributors.
+/* Copyright (C) 2022-2025 mintsuki and contributors.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -102,8 +102,8 @@ void flanterm_context_reinit(struct flanterm_context *ctx) {
 
 static void flanterm_putchar(struct flanterm_context *ctx, uint8_t c);
 
-void flanterm_write(struct flanterm_context *ctx, const char *buf) {
-    for (size_t i = 0; buf[i] != '\0'; i++) {
+void flanterm_write(struct flanterm_context *ctx, const char *buf, size_t count) {
+    for (size_t i = 0; i < count; i++) {
         flanterm_putchar(ctx, buf[i]);
     }
 
@@ -461,12 +461,11 @@ static void osc_parse(struct flanterm_context *ctx, uint8_t c) {
     switch (c) {
         case 0x1b:
             ctx->osc_escape = true;
-            break;
+            return;
         case '\a':
-            goto cleanup;
+        default:
+            break;
     }
-
-    return;
 
 cleanup:
     ctx->osc_escape = false;

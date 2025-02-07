@@ -1,14 +1,24 @@
+// essentials
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <limine.h>
-
 #include <mem.h>
-#include <sys/gdt.h>
-#include <sys/idt.h>
-#include <sys/port.h>
 
-#include <kernel.h>
+// mm
+#include <mm/pm.h>
+
+// cpu
+#include <cpu/gdt.h>
+#include <cpu/idt.h>
+
+// lib
+#include <lib/printf.h>
+#include <lib/global.h>
+
+// flanterm
+#include <ft/flanterm.h>
+#include <ft/backends/fb.h>
 
 __attribute__((used, section(".requests")))
 static volatile LIMINE_BASE_REVISION(2);
@@ -20,8 +30,8 @@ static volatile struct limine_framebuffer_request framebuffer_request = {
 };
 
 __attribute__((used, section(".requests")))
-static volatile struct limine_rsdp_request rsdp_request = {
-    .id = LIMINE_RSDP_REQUEST,
+static volatile struct limine_hhdm_request hhdm_request = {
+    .id = LIMINE_HHDM_REQUEST,
     .revision = 0
 };
 
@@ -31,8 +41,13 @@ static volatile LIMINE_REQUESTS_START_MARKER;
 __attribute__((used, section(".requests_end_marker")))
 static volatile LIMINE_REQUESTS_END_MARKER;
 
+// stuff for global.h
+struct limine_framebuffer *fb;
+struct flanterm_context *ftctx;
+uint64_t hhdm_offset;
+
 // Halt and catch fire function.
-static void hcf(void) {
+void hcf(void) {
     for (;;) {
         asm("hlt");
     }
@@ -45,8 +60,9 @@ void kmain(void) {
     || !framebuffer_request.response->framebuffer_count) {
         hcf();
     } 
-    fb = framebuffer_request.response->framebuffers[0];
 
+    fb = framebuffer_request.response->framebuffers[0];
+    hhdm_offset = hhdm_request.response->offset;
     ftctx = flanterm_fb_init (
         NULL, NULL, 
         fb->address, fb->width, fb->height, fb->pitch, 
@@ -59,20 +75,20 @@ void kmain(void) {
         NULL, NULL, 
         &_binary_kernel_res_ttyfont_start, 
         8, 16, 
-        0, 0, 
+        0, 0,
         0, 0
     );
 
-    initGDT(); // Initialize the Global Descriptor Table
-    initDMM(); // Initialize the Dynamic Memory (for dynamic memory management)
-    initIDT(); // Initialize the Interrupt Descriptor Table
+    init_gdt(); // Initialize the Global Descriptor Table
+    init_idt(); // Initialize the Interrupt Descriptor Table
+    init_pmm(); // Initialize the Physical Memory Manager
 
-    kprint("Initialization successful.");
+    printf("Initialization successful.\n");
 
-    kprint("Welcome to \e[0;33mMangoOS\e[0m!\n");
-    
+    printf("Welcome to \e[0;33mMangoOS\e[0m!\n");
+
     // there is nothing left to do for now.
-    kprint("Hello, world!\n");
+    printf("Hello, world!\n");
 
     hcf();
 }

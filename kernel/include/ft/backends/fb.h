@@ -1,4 +1,4 @@
-/* Copyright (C) 2022-2024 mintsuki and contributors.
+/* Copyright (C) 2022-2025 mintsuki and contributors.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -51,6 +51,8 @@ struct flanterm_fb_queue_item {
 
 struct flanterm_fb_context {
     struct flanterm_context term;
+
+    void (*plot_char)(struct flanterm_context *ctx, struct flanterm_fb_char *c, size_t x, size_t y);
 
     size_t font_width;
     size_t font_height;

@@ -1,25 +1,19 @@
-#include <sys/gdt.h>
+#include <cpu/gdt.h>
 
 static GDT gdt = {
-    // gdt.segments[0] = null
-    // gdt.segments[1] = 16-bit code segment
-    // gdt.segments[2] = 16-bit data segment
-    // gdt.segments[3] = 32-bit code segment
-    // gdt.segments[4] = 32-bit data segment
-    // gdt.segments[5] = 64-bit code segment (CS = 0x28)
-    // gdt.segments[6] = 64-bit data segment (DS = 0x30, ES = 0x30, FS = 0x30, GS = 0x30, SS = 0x30)
-    // gdt.segments[7] = User Mode data segment
-    // gdt.segments[8] = User Mode code segment 
-    { 0x0000000000000000, 0x00009a000000ffff, 0x000093000000ffff, 
+    { // null, 16-bit cs & ds, 32-bit cs & ds, 64-bit cs & ds, dpl 3 cs & ds
+      0x0000000000000000, 0x00009a000000ffff, 0x000093000000ffff, 
       0x00cf9a000000ffff, 0x00cf93000000ffff, 0x00af9b000000ffff, 
-      0x00af93000000ffff, 0x00aff3000000ffff, 0x00affb000000ffff },
+      0x00af93000000ffff, 0x00aff3000000ffff, 0x00affb000000ffff 
+    },
 
     // gdt.tssSeg = GDT segment for the Task State Segment. Value is set in initGDT()
-    {}
+    {
+    }
 };
 
 /// @brief Initialize the Global Descriptor Table.
-void initGDT() {
+void init_gdt() {
     // create the TSS Segment in the GDT
     tss_t tss;
     uint64_t tssBase = (uint64_t)&tss;
